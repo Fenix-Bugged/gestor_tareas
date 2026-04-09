@@ -1,0 +1,22 @@
+<div class="backdrop" (click)="alCancelar()"></div>
+<dialog open>
+  <h2>Nueva Tarea</h2>
+  <form (ngSubmit)="alEnviar()">
+    <p>
+      <label for="titulo">Título</label>
+      <input type="text" id="titulo" name="titulo" [(ngModel)]="tituloIngresado" required autofocus />
+    </p>
+    <p>
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" name="descripcion" rows="4" [(ngModel)]="descripcionIngresada"></textarea>
+    </p>
+    <p>
+      <label for="fechaLimite">Fecha Límite</label>
+      <input type="date" id="fechaLimite" name="fechaLimite" [(ngModel)]="fechaLimiteIngresada" />
+    </p>
+    <p class="actions">
+      <button type="button" (click)="alCancelar()">Cancelar</button>
+      <button type="submit" [disabled]="!tituloIngresado.trim()">Guardar</button>
+    </p>
+  </form>
+</dialog>

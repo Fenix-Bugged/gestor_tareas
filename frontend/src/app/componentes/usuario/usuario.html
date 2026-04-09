@@ -1,0 +1,6 @@
+<app-tarjeta>
+  <button [class.active]="seleccionado" (click)="alSeleccionarUsuario()">
+    <img [src]="rutaAvatar" [alt]="usuario.nombre" />
+    <span>{{ usuario.nombre }}</span>
+  </button>
+</app-tarjeta>

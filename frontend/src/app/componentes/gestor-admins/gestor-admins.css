@@ -1,0 +1,244 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.gestor-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
+  background: linear-gradient(160deg, #1e1040 0%, #120d2b 100%);
+  border: 1px solid rgba(160, 100, 255, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  width: min(90vw, 800px); /* Más ancho que el login */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  color: #e0c8ff;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.gestor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.gestor-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.btn-close:hover {
+  color: #fff;
+}
+
+.gestor-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 600px) {
+  .gestor-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #c4b5d4;
+  font-size: 1.1rem;
+}
+
+.form-section form p {
+  margin-bottom: 1rem;
+}
+
+.form-section label {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  color: #a78bfa;
+}
+
+.form-section input, .edit-mode input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(160, 100, 255, 0.3);
+  border-radius: 6px;
+  padding: 0.6rem;
+  color: #fff;
+}
+
+.form-section input:focus, .edit-mode input:focus {
+  border-color: #a78bfa;
+  outline: none;
+}
+
+.form-section small {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: #8b75a1;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+}
+
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.admin-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  min-height: 48px;
+}
+
+.admin-list li:last-child {
+  border-bottom: none;
+}
+
+.admin-list span {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.list-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-editar {
+  background: rgba(167, 139, 250, 0.15);
+  color: #c4b5d4;
+  border: 1px solid #a78bfa;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btn-editar:hover {
+  background: #a78bfa;
+  color: #1e1040;
+}
+
+.btn-borrar {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid #ef4444;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btn-borrar:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Edit Mode */
+.edit-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.edit-mode input {
+  padding: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-guardar-inline {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancelar-inline {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alert-banner {
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.alert-banner.error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.alert-banner.success {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid #22c55e;
+  color: #86efac;
+}

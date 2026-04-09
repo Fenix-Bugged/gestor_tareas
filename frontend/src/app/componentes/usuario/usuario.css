@@ -1,0 +1,43 @@
+button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background-color: #433352; /* Fondo oscuro original */
+  color: #c3b3d1; /* Texto claro original */
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
+  min-width: 10rem;
+  text-align: left;
+  border-radius: 5px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  background-color: #6f09f5;
+  color: #ffffff;
+}
+
+/* --- ESTO ES LO QUE HACE QUE SE VEA COMO LA SEGUNDA IMAGEN --- */
+button.active {
+  background-color: #6f09f5; /* Fondo lila brillante */
+
+  box-shadow: 0 2px 8px rgba(196, 132, 243, 0.5); /* Sombra lila */
+}
+
+
+img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+span {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: normal;
+}

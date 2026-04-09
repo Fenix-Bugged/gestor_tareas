@@ -1,0 +1,38 @@
+<app-encabezado 
+  (abrirLogin)="abrirLogin()" 
+  (abrirGestor)="abrirGestorAdmins()"
+  (resetear)="resetearFiltros()">
+</app-encabezado>
+
+@if (mostrandoLogin()) {
+  <app-login (cerrar)="cerrarLogin()" />
+}
+
+@if (mostrandoGestorAdmins()) {
+  <app-gestor-admins (cerrar)="cerrarGestorAdmins()" />
+}
+
+<main>
+  <!-- Restauramos la barra lateral con los usuarios -->
+  <ul id="usuarios">
+    @for (usuario of usuarios; track usuario.id) {
+      <li>
+        <app-usuario
+          [usuario]="usuario"
+          [seleccionado]="usuario.id === idUsuarioSeleccionado()"
+          (seleccionar)="alSeleccionarUsuario($event)"
+        />
+      </li>
+    }
+  </ul>
+
+  <!-- Panel principal de tareas dependiente del usuario -->
+  @if (usuarioSeleccionado) {
+    <app-tareas
+      [idUsuario]="usuarioSeleccionado.id"
+      [nombre]="usuarioSeleccionado.nombre"
+    />
+  } @else {
+    <p id="fallback">Selecciona un usuario para ver sus tareas</p>
+  }
+</main>

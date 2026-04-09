@@ -1,0 +1,43 @@
+@if (estaAnadiendoTarea()) {
+  <app-nueva-tarea (cancelar)="alCerrarAnadirTarea()" (anadir)="alAnadirTarea($event)" />
+}
+
+<section id="tareas">
+  <header>
+    <h2>
+      Tareas de {{ nombre() }}
+      @if (authService.isLoggedIn()) {
+        <span style="font-size: 0.8rem; background: #6f09f5; color: white; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">(Admin Mode)</span>
+      }
+    </h2>
+    <menu>
+      @if (authService.isLoggedIn()) {
+        <button (click)="alEmpezarAnadirTarea()">Agregar Tarea</button>
+      }
+    </menu>
+  </header>
+
+  <ul>
+    @if (tareasService.cargando()) {
+      <li><app-skeleton /></li>
+      <li><app-skeleton /></li>
+      <li><app-skeleton /></li>
+    } @else {
+      @for (tarea of tareasService.tareas(); track tarea.id) {
+        <li>
+          <app-tarea
+            [tarea]="tarea"
+            [isAdmin]="authService.isLoggedIn()"
+            (completar)="alCompletarTarea($event)"
+            (borrar)="alBorrarTarea($event)"
+            (editar)="alEditarTarea($event.id, $event.datos)"
+          />
+        </li>
+      }
+      
+      @if (tareasService.tareas().length === 0) {
+        <p style="text-align: center; color: #c4b5d4; padding: 2rem;">No hay tareas disponibles.</p>
+      }
+    }
+  </ul>
+</section>

@@ -1,0 +1,21 @@
+<div class="modal-overlay" (click)="onCancel()"></div>
+<dialog open class="login-dialog">
+  <h3>Ingreso de Administrador</h3>
+  <form (ngSubmit)="onSubmit()">
+    @if (errorMsg()) {
+      <div class="error-banner">{{ errorMsg() }}</div>
+    }
+    <p>
+      <label for="username">Usuario</label>
+      <input type="text" id="username" name="username" [value]="username()" (input)="username.set($any($event.target).value)" required autofocus />
+    </p>
+    <p>
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" [value]="password()" (input)="password.set($any($event.target).value)" required />
+    </p>
+    <p class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()">Cancelar</button>
+      <button type="submit" class="btn-save">Ingresar</button>
+    </p>
+  </form>
+</dialog>

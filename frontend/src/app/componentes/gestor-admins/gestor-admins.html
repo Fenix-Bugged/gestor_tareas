@@ -1,0 +1,68 @@
+<div class="modal-overlay" (click)="cerrarModal()"></div>
+<dialog open class="gestor-dialog">
+  <div class="gestor-header">
+    <h3>Gestión de Perfiles Administrativos</h3>
+    <button class="btn-close" (click)="cerrarModal()">×</button>
+  </div>
+
+  @if (errorMsg()) {
+    <div class="alert-banner error">{{ errorMsg() }}</div>
+  }
+  @if (successMsg()) {
+    <div class="alert-banner success">{{ successMsg() }}</div>
+  }
+
+  <div class="gestor-grid">
+    <!-- Formulario para agregar nuevo Admin -->
+    <section class="form-section">
+      <h4>Agregar Nuevo Administrador</h4>
+      <form (ngSubmit)="crearAdmin()">
+        <p>
+          <label for="nuevo-usuario">Usuario</label>
+          <input type="text" id="nuevo-usuario" name="usuario" [(ngModel)]="nuevoAdminUsuario" required />
+        </p>
+        <p>
+          <label for="nueva-clave">Contraseña</label>
+          <input type="text" id="nueva-clave" name="clave" [(ngModel)]="nuevoAdminClave" required />
+          <small>La contraseña será encriptada (bcrypt) en la BD.</small>
+        </p>
+        <button type="submit" class="btn-save" [disabled]="!nuevoAdminUsuario || !nuevoAdminClave">
+          Crear Perfil
+        </button>
+      </form>
+    </section>
+
+    <!-- Lista de Administradores Actuales -->
+    <section class="list-section">
+      <h4>Administradores Actuales</h4>
+      @if (adminService.cargando()) {
+        <p>Cargando administradores...</p>
+      } @else {
+        <ul class="admin-list">
+          @for (admin of adminService.admins(); track admin.id) {
+            <li>
+              @if (adminEditandoId() === admin.id) {
+                <!-- Modo Edición -->
+                <div class="edit-mode">
+                  <input type="text" name="editUser" [(ngModel)]="adminEditandoUsuario" placeholder="Usuario" required />
+                  <input type="text" name="editClave" [(ngModel)]="adminEditandoClave" placeholder="Nueva Contraseña (Opcional)" />
+                  <div class="edit-actions">
+                    <button class="btn-guardar-inline" (click)="guardarEdicion()">✔</button>
+                    <button class="btn-cancelar-inline" (click)="cancelarEdicion()">✖</button>
+                  </div>
+                </div>
+              } @else {
+                <!-- Modo Lectura -->
+                <span>{{ admin.username }}</span>
+                <div class="list-actions">
+                  <button class="btn-editar" (click)="empezarEdicion(admin)">Editar</button>
+                  <button class="btn-borrar" (click)="borrarAdmin(admin.id)">Borrar</button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</dialog>

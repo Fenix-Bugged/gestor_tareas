@@ -9,7 +9,7 @@ const app = express();
 const JWT_SECRET = 'secreto_super_seguro_gestor_tareas_123';
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: '*', // Permitir peticiones desde localhost y desde el frontend subido
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

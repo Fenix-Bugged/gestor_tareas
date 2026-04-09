@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -15,12 +16,16 @@ app.use(cors({
 app.use(express.json());
 
 // CONFIGURACIÓN DE LA CONEXIÓN
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      // Usuario por defecto de XAMPP
-    password: '123456',      // Cambia esto si tienes contraseña
-    database: 'gestor_tareas'
-});
+const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+const dbConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',      // Usuario por defecto de XAMPP
+    password: process.env.DB_PASSWORD || '123456',      // Cambia esto si tienes contraseña
+    database: process.env.DB_NAME || 'gestor_tareas',
+    port: process.env.DB_PORT || 3306
+};
+
+const db = dbUrl ? mysql.createConnection(dbUrl) : mysql.createConnection(dbConfig);
 
 db.connect(async (err) => {
     if (err) {
@@ -29,14 +34,30 @@ db.connect(async (err) => {
     }
     console.log('✅ Conectado a MySQL');
 
-    // Auto-Seeding: Verificar si hay admins
-    db.query('SELECT COUNT(*) AS count FROM administradores', async (err, results) => {
-        if (!err && results[0].count === 0) {
-            const hashed = await bcrypt.hash('admin123', 10);
-            db.query('INSERT INTO administradores (username, password) VALUES (?, ?)', ['admin', hashed], (err, res) => {
-                if (!err) console.log('🌱 Admin por defecto creado (admin/admin123)');
-            });
+    // Crear la tabla de administradores si no existe
+    const createAdminsTableQuery = `
+      CREATE TABLE IF NOT EXISTS administradores (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL
+      )
+    `;
+
+    db.query(createAdminsTableQuery, (err) => {
+        if (err) {
+            console.error('❌ Error creando tabla de administradores:', err);
+            return;
         }
+
+        // Auto-Seeding: Verificar si hay admins
+        db.query('SELECT COUNT(*) AS count FROM administradores', async (err, results) => {
+            if (!err && results[0].count === 0) {
+                const hashed = await bcrypt.hash('admin123', 10);
+                db.query('INSERT INTO administradores (username, password) VALUES (?, ?)', ['admin', hashed], (err, res) => {
+                    if (!err) console.log('🌱 Admin por defecto creado (admin/admin123)');
+                });
+            }
+        });
     });
 });
 
@@ -215,6 +236,7 @@ app.put('/administradores/:id', verificarToken, async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-    console.log('🚀 Servidor en http://localhost:3000/tareas');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor en puerto ${PORT}`);
 });

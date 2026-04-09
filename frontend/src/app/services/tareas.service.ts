@@ -7,7 +7,7 @@ import { TareaModel } from '../tarea/tarea.model';
 })
 export class TareasService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:3000/tareas';
+  private readonly API = 'https://easygoing-nature-production.up.railway.app/tareas';
 
   tareas = signal<TareaModel[]>([]);
   cargando = signal<boolean>(false);

@@ -9,45 +9,55 @@ const app = express();
 const JWT_SECRET = 'secreto_super_seguro_gestor_tareas_123';
 
 app.use(cors({
-  origin: '*', // Permitir peticiones desde localhost y desde el frontend subido
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+    origin: '*', // Permitir peticiones desde localhost y desde el frontend subido
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
 // CONFIGURACIÓN DE LA CONEXIÓN
+const {
+    MYSQL_URL, DATABASE_URL,
+    MYSQLHOST, MYSQL_HOST, DB_HOST,
+    MYSQLUSER, MYSQL_USER, DB_USER,
+    MYSQLPASSWORD, MYSQL_PASSWORD, DB_PASSWORD,
+    MYSQLDATABASE, MYSQL_DATABASE, DB_NAME,
+    MYSQLPORT, MYSQL_PORT, DB_PORT
+} = process.env;
+
 console.log("=== DEBUG RAILWAY ===");
 console.log("Variables detectadas:", Object.keys(process.env).join(', '));
-if (process.env.MYSQL_URL) console.log("=> ¡MYSQL_URL fue encontrada!");
-else console.log("=> MYSQL_URL NO está definida.");
+if (MYSQL_URL || DATABASE_URL) console.log("=> ¡URL de base de datos encontrada!");
+else console.log("=> Usando configuración de host individual.");
 
-const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+const dbUrl = MYSQL_URL || DATABASE_URL;
+
 const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',      // Usuario por defecto de XAMPP
-    password: process.env.DB_PASSWORD || '123456',      // Cambia esto si tienes contraseña
-    database: process.env.DB_NAME || 'gestor_tareas',
-    port: process.env.DB_PORT || 3306
+    host:     MYSQLHOST     || MYSQL_HOST     || DB_HOST     || 'localhost',
+    user:     MYSQLUSER     || MYSQL_USER     || DB_USER     || 'root',
+    password: MYSQLPASSWORD || MYSQL_PASSWORD || DB_PASSWORD || '',
+    database: MYSQLDATABASE || MYSQL_DATABASE || DB_NAME     || 'gestor_tareas',
+    port:     MYSQLPORT     || MYSQL_PORT     || DB_PORT     || 3306,
+    ssl: (MYSQLHOST || MYSQL_URL || DATABASE_URL) ? { rejectUnauthorized: false } : false,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 };
 
-const db = dbUrl ? mysql.createConnection(dbUrl) : mysql.createConnection(dbConfig);
+const db = dbUrl ? mysql.createPool(dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'ssl={"rejectUnauthorized":false}') : mysql.createPool(dbConfig);
 
-db.connect(async (err) => {
+// Verificar la conexión inicial
+db.getConnection((err, connection) => {
     if (err) {
-        console.error('❌ Error conectando a la BD:', err);
+        console.error('❌ Error obteniendo conexión del Pool:', err);
         return;
     }
-    console.log('✅ Conectado a MySQL');
+    console.log('✅ Conexión al Pool establecida correctamente');
+    connection.release();
+});
 
-    // Crear la tabla de administradores si no existe
-    const createAdminsTableQuery = `
-      CREATE TABLE IF NOT EXISTS administradores (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(100) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL
-      )
-    `;
-
+// Inicialización de Tablas
+const initDB = async () => {
     const createTareasTableQuery = `
       CREATE TABLE IF NOT EXISTS tareas (
         id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,27 +69,41 @@ db.connect(async (err) => {
       )
     `;
 
+    const createAdminsTableQuery = `
+      CREATE TABLE IF NOT EXISTS administradores (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL
+      )
+    `;
+
     db.query(createTareasTableQuery, (err) => {
-        if (err) console.error('❌ Error creando tabla de tareas:', err);
+        if (err) console.error('❌ Error creando tabla de tareas:', err.message);
     });
 
     db.query(createAdminsTableQuery, (err) => {
         if (err) {
-            console.error('❌ Error creando tabla de administradores:', err);
+            console.error('❌ Error creando tabla de administradores:', err.message);
             return;
         }
 
-        // Auto-Seeding: Verificar si hay admins
         db.query('SELECT COUNT(*) AS count FROM administradores', async (err, results) => {
             if (!err && results[0].count === 0) {
-                const hashed = await bcrypt.hash('admin123', 10);
-                db.query('INSERT INTO administradores (username, password) VALUES (?, ?)', ['admin', hashed], (err, res) => {
-                    if (!err) console.log('🌱 Admin por defecto creado (admin/admin123)');
-                });
+                try {
+                    const hashed = await bcrypt.hash('admin123', 10);
+                    db.query('INSERT INTO administradores (username, password) VALUES (?, ?)', ['admin', hashed], (err) => {
+                        if (!err) console.log('🌱 Admin por defecto creado (admin/admin123)');
+                        else console.error('❌ Error creando admin por defecto:', err.message);
+                    });
+                } catch (hashErr) {
+                    console.error('❌ Error encriptando admin por defecto:', hashErr.message);
+                }
             }
         });
     });
-});
+};
+
+initDB();
 
 // Middleware JWT
 function verificarToken(req, res, next) {
@@ -106,7 +130,10 @@ app.post('/login', (req, res) => {
     console.log("Password recibida:", password);
 
     db.query('SELECT * FROM administradores WHERE username = ?', [username], async (err, results) => {
-        if (err) return res.status(500).json({ error: 'Error del servidor' });
+        if (err) {
+            console.error('❌ Error en query de login:', err.message);
+            return res.status(500).json({ error: 'Error del servidor', details: err.message });
+        }
         if (results.length === 0) return res.status(401).json({ error: 'Credenciales inválidas' });
 
         const admin = results[0];

@@ -16,6 +16,11 @@ app.use(cors({
 app.use(express.json());
 
 // CONFIGURACIÓN DE LA CONEXIÓN
+console.log("=== DEBUG RAILWAY ===");
+console.log("Variables detectadas:", Object.keys(process.env).join(', '));
+if (process.env.MYSQL_URL) console.log("=> ¡MYSQL_URL fue encontrada!");
+else console.log("=> MYSQL_URL NO está definida.");
+
 const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',

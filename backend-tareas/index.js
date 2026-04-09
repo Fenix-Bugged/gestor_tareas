@@ -41,20 +41,46 @@ const dbConfig = {
     ssl: (MYSQLHOST || MYSQL_URL || DATABASE_URL) ? { rejectUnauthorized: false } : false,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000
 };
 
-const db = dbUrl ? mysql.createPool(dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'ssl={"rejectUnauthorized":false}') : mysql.createPool(dbConfig);
+console.log("=== CONFIGURACIÓN DE CONEXIÓN ===");
+console.log(`Host: ${dbConfig.host}`);
+console.log(`Database: ${dbConfig.database}`);
+console.log(`User: ${dbConfig.user}`);
+console.log(`SSL: ${!!dbConfig.ssl}`);
 
-// Verificar la conexión inicial
-db.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ Error obteniendo conexión del Pool:', err);
-        return;
-    }
-    console.log('✅ Conexión al Pool establecida correctamente');
-    connection.release();
-});
+// Usar el Pool de forma más robusta
+let db;
+if (dbUrl) {
+    console.log("=> Usando URL de conexión (DATABASE_URL/MYSQL_URL)");
+    db = mysql.createPool({
+        uri: dbUrl,
+        ssl: { rejectUnauthorized: false },
+        waitForConnections: true,
+        connectionLimit: 10
+    });
+} else {
+    console.log("=> Usando configuración de host individual.");
+    db = mysql.createPool(dbConfig);
+}
+
+// Verificar la conexión inicial con un reintento simple
+const checkConnection = () => {
+    db.getConnection((err, connection) => {
+        if (err) {
+            console.error('❌ Error obteniendo conexión del Pool:', err.message);
+            console.log('Intentando de nuevo en 5 segundos...');
+            setTimeout(checkConnection, 5000);
+            return;
+        }
+        console.log('✅ Conexión al Pool establecida correctamente');
+        connection.release();
+    });
+};
+checkConnection();
 
 // Inicialización de Tablas
 const initDB = async () => {
@@ -203,12 +229,24 @@ app.delete('/tareas/:id', verificarToken, (req, res) => {
 // POST - Crear una nueva tarea referenciada a un usuario (PROTEGIDO)
 app.post('/tareas', verificarToken, (req, res) => {
     const { titulo, descripcion, idUsuario, fechaLimite } = req.body;
+    console.log('➕ Intentando crear tarea:', { titulo, idUsuario });
+    
+    if (!titulo || !idUsuario) {
+        return res.status(400).json({ error: 'Título e idUsuario son requeridos' });
+    }
+
     const query = 'INSERT INTO tareas (idUsuario, titulo, descripcion, fechaLimite) VALUES (?, ?, ?, ?)';
     db.query(query, [idUsuario, titulo, descripcion, fechaLimite], (err, result) => {
         if (err) {
-            console.error(err);
-            return res.status(500).send(err);
+            console.error('❌ Error al insertar tarea:', err.message);
+            return res.status(500).json({ 
+                error: 'Error al guardar la tarea en la base de datos',
+                details: err.message,
+                sqlState: err.sqlState,
+                code: err.code
+            });
         }
+        console.log('✅ Tarea guardada con ID:', result.insertId);
         res.json({ message: 'Tarea guardada', id: result.insertId });
     });
 });
@@ -283,7 +321,17 @@ app.put('/administradores/:id', verificarToken, async (req, res) => {
     }
 });
 
+// Manejadores de errores globales para evitar caídas silenciosas
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('⚠️ Uncaught Exception thrown:', err.message);
+    console.error(err.stack);
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor en puerto ${PORT}`);
 });

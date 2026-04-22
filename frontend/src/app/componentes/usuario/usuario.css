@@ -1,43 +1,43 @@
 button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.5rem;
-  background-color: #433352; /* Fondo oscuro original */
-  color: #c3b3d1; /* Texto claro original */
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--sidebar-norm);
+  color: var(--texto-prin);
   border: none;
   font: inherit;
   cursor: pointer;
   width: 100%;
-  min-width: 10rem;
+  min-width: 12rem;
   text-align: left;
-  border-radius: 5px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 button:hover {
-  background-color: #6f09f5;
+  background-color: var(--sidebar-sel);
   color: #ffffff;
+  transform: translateY(-2px);
 }
 
-/* --- ESTO ES LO QUE HACE QUE SE VEA COMO LA SEGUNDA IMAGEN --- */
 button.active {
-  background-color: #6f09f5; /* Fondo lila brillante */
-
-  box-shadow: 0 2px 8px rgba(196, 132, 243, 0.5); /* Sombra lila */
+  background-color: var(--sidebar-sel);
+  box-shadow: 0 4px 12px rgba(147, 0, 181, 0.4);
 }
-
 
 img {
-  width: 2rem;
-  height: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
   object-fit: cover;
   border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--body-bg);
 }
 
 span {
   margin: 0;
-  font-size: 0.8rem;
-  font-weight: normal;
+  font-size: 1.2rem;
+  font-weight: 500;
 }

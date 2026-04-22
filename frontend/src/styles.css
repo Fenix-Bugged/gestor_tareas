@@ -1,9 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --body-bg: #000000;
+  --header: #100052;
+  --boton-global: #940606;
+  --glow-boton: #B50000;
+  --sidebar-norm: #2A2535;
+  --sidebar-sel: #9300B5;
+  --panel-tarjeta: #3F1976;
+  --sub-recuadro-tarea: #640078;
+  --boton-editar: #006BA3;
+  --boton-editar-glow: #009DFA;
+  --texto-prin: #F1F1F1;
+  --texto-sec: #D1D1D1;
+}
+
 * { box-sizing: border-box; }
 html { height: 100%; }
 body {
-  font-family: "Poppins", sans-serif;
-  background: radial-gradient(circle at top left, #181023, #0b0519);
-  color: #c3b3d8;
+  font-family: "Inter", sans-serif;
+  background-color: var(--body-bg);
+  color: var(--texto-prin);
   margin: 0;
   height: 100%;
 }
+
+button {
+  transition: all 0.2s ease;
+  font-family: "Inter", sans-serif;
+}
+

@@ -1,11 +1,11 @@
 header {
-  background: linear-gradient(#2c124e, #471d7d);
-  padding: 1.5rem 2rem;
-  border-radius: 0 0 15px 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  background-color: var(--header);
+  padding: 1.5rem 3rem;
+  border-bottom: 2px solid #000;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 80px;
 }
 
 .logo-container {
@@ -16,46 +16,58 @@ header {
 }
 
 header img {
-  width: 5rem;
+  width: 4rem;
   height: auto;
   object-fit: contain;
 }
 
 header h1 {
-  margin: 0 0 0.25rem 0;
+  margin: 0;
   font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 header p {
-  margin: 0;
-  opacity: 0.8;
+  margin: 0.25rem 0 0 0;
+  color: var(--texto-sec);
+  font-size: 0.9rem;
 }
 
 .auth-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  background-color: var(--boton-global);
+  border: 2px solid var(--body-bg);
+  color: var(--texto-prin);
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  font-weight: bold;
-  transition: all 0.2s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
 }
 
 .auth-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px var(--glow-boton);
   transform: translateY(-2px);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
 }
 
 @media (max-width: 600px) {
   header {
     flex-direction: column;
+    height: auto;
     gap: 1.5rem;
     text-align: center;
+    padding: 1rem;
   }
   .logo-container {
     flex-direction: column;
     text-align: center;
+    gap: 0.5rem;
   }
 }

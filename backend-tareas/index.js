@@ -104,7 +104,21 @@ const initDB = async () => {
     `;
 
     db.query(createTareasTableQuery, (err) => {
-        if (err) console.error('❌ Error creando tabla de tareas:', err.message);
+        if (err) {
+            console.error('❌ Error creando tabla de tareas:', err.message);
+        } else {
+            // Intentar añadir columnas en caso de que la tabla ya existiera sin ellas
+            db.query('ALTER TABLE tareas ADD COLUMN descripcion TEXT', (alterErr) => {
+                if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
+                    console.error('❌ Error añadiendo columna descripcion:', alterErr.message);
+                }
+            });
+            db.query('ALTER TABLE tareas ADD COLUMN fechaLimite DATE', (alterErr) => {
+                if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
+                    console.error('❌ Error añadiendo columna fechaLimite:', alterErr.message);
+                }
+            });
+        }
     });
 
     db.query(createAdminsTableQuery, (err) => {

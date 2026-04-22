@@ -27,6 +27,7 @@
   color: #e0c8ff;
   max-height: 85vh;
   overflow-y: auto;
+  margin: 0;
 }
 
 .gestor-header {

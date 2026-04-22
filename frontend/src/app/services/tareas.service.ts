@@ -27,20 +27,16 @@ export class TareasService {
   }
 
   agregar(idUsuario: string, titulo: string, descripcion: string, fechaLimite: string): void {
-    const body = { idUsuario, titulo, descripcion, fechaLimite };
+    const body = {
+      idUsuario,
+      titulo,
+      descripcion: descripcion || null,
+      fechaLimite: fechaLimite || null
+    };
     this.http.post<{ message: string; id: number }>(this.API, body).subscribe({
       next: (res) => {
-        this.tareas.update(lista => [
-          ...lista,
-          {
-            id: res.id,
-            idUsuario,
-            titulo,
-            descripcion,
-            fechaLimite,
-            estado: 'pendiente'
-          }
-        ]);
+        // Recargar las tareas del servidor para asegurar consistencia
+        this.cargar(idUsuario);
       },
       error: (err) => console.error('Error al agregar tarea:', err)
     });

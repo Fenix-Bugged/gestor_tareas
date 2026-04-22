@@ -192,7 +192,7 @@ app.put('/tareas/:id/editar', verificarToken, (req, res) => {
     const { titulo, descripcion, fechaLimite } = req.body;
     console.log(`✏️  Editando tarea ${id}:`, { titulo, descripcion, fechaLimite });
     const query = 'UPDATE tareas SET titulo = ?, descripcion = ?, fechaLimite = ? WHERE id = ?';
-    db.query(query, [titulo, descripcion, fechaLimite, id], (err, result) => {
+    db.query(query, [titulo, descripcion || null, fechaLimite || null, id], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).send(err);
@@ -236,7 +236,7 @@ app.post('/tareas', verificarToken, (req, res) => {
     }
 
     const query = 'INSERT INTO tareas (idUsuario, titulo, descripcion, fechaLimite) VALUES (?, ?, ?, ?)';
-    db.query(query, [idUsuario, titulo, descripcion, fechaLimite], (err, result) => {
+    db.query(query, [idUsuario, titulo, descripcion || null, fechaLimite || null], (err, result) => {
         if (err) {
             console.error('❌ Error al insertar tarea:', err.message);
             return res.status(500).json({ 

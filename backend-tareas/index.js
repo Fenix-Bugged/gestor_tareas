@@ -118,6 +118,11 @@ const initDB = async () => {
                     console.error('❌ Error añadiendo columna fechaLimite:', alterErr.message);
                 }
             });
+            db.query("ALTER TABLE tareas ADD COLUMN estado ENUM('pendiente','completada') DEFAULT 'pendiente'", (alterErr) => {
+                if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
+                    console.error('❌ Error añadiendo columna estado:', alterErr.message);
+                }
+            });
         }
     });
 
@@ -221,7 +226,10 @@ app.put('/tareas/:id', verificarToken, (req, res) => {
     console.log(`✔️  Completando tarea ${id}`);
     const query = 'UPDATE tareas SET estado = "completada" WHERE id = ?';
     db.query(query, [id], (err, result) => {
-        if (err) return res.status(500).send(err);
+        if (err) {
+            console.error('❌ Error al completar tarea:', err.message);
+            return res.status(500).json({ error: 'Error al completar la tarea', details: err.message });
+        }
         res.json({ message: 'Tarea completada' });
     });
 });

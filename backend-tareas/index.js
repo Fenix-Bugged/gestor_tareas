@@ -4,16 +4,48 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const JWT_SECRET = 'secreto_super_seguro_gestor_tareas_123';
 
+// Configuración de Multer para subida de imágenes
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, 'uploads'));
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'avatar-' + uniqueSuffix + ext);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            cb(null, true);
+        } else {
+            cb(new Error('Solo se permiten imágenes (jpg, png, gif, webp)'));
+        }
+    }
+});
+
 app.use(cors({
-    origin: '*', // Permitir peticiones desde localhost y desde el frontend subido
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// Servir archivos subidos como estáticos
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // CONFIGURACIÓN DE LA CONEXIÓN
 const {
@@ -282,23 +314,33 @@ app.get('/usuarios', (req, res) => {
 });
 
 // POST - Crear usuario (PROTEGIDO)
-app.post('/usuarios', verificarToken, (req, res) => {
-    const { nombre, avatar } = req.body;
+app.post('/usuarios', verificarToken, upload.single('avatarFile'), (req, res) => {
+    const { nombre } = req.body;
+    let avatar = req.body.avatar;
+    if (req.file) {
+        avatar = req.file.filename;
+    }
+    
     if (!nombre) return res.status(400).json({ error: 'Nombre es requerido' });
     
     db.query('INSERT INTO usuarios (nombre, avatar) VALUES (?, ?)', [nombre, avatar || null], (err, result) => {
         if (err) return res.status(500).send(err);
-        res.json({ message: 'Usuario creado', id: result.insertId });
+        res.json({ message: 'Usuario creado', id: result.insertId, avatar });
     });
 });
 
 // PUT - Editar usuario (PROTEGIDO)
-app.put('/usuarios/:id', verificarToken, (req, res) => {
+app.put('/usuarios/:id', verificarToken, upload.single('avatarFile'), (req, res) => {
     const { id } = req.params;
-    const { nombre, avatar } = req.body;
+    const { nombre } = req.body;
+    let avatar = req.body.avatar;
+    if (req.file) {
+        avatar = req.file.filename;
+    }
+
     db.query('UPDATE usuarios SET nombre = ?, avatar = ? WHERE id = ?', [nombre, avatar || null, id], (err) => {
         if (err) return res.status(500).send(err);
-        res.json({ message: 'Usuario actualizado' });
+        res.json({ message: 'Usuario actualizado', avatar });
     });
 });
 

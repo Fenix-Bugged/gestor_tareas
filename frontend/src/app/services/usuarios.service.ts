@@ -35,9 +35,17 @@ export class UsuariosService {
     });
   }
 
-  agregar(nombre: string, avatar: string): void {
-    const body = { nombre, avatar: avatar || null };
-    this.http.post<{ message: string; id: number }>(this.API, body).subscribe({
+  agregar(nombre: string, avatar: string | File): void {
+    const formData = new FormData();
+    formData.append('nombre', nombre);
+    
+    if (avatar instanceof File) {
+      formData.append('avatarFile', avatar);
+    } else if (avatar) {
+      formData.append('avatar', avatar);
+    }
+
+    this.http.post<{ message: string; id: number }>(this.API, formData).subscribe({
       next: (res) => {
         this.cargar();
       },
@@ -48,8 +56,17 @@ export class UsuariosService {
     });
   }
 
-  editar(id: number, datos: { nombre: string; avatar: string }): void {
-    this.http.put<{ message: string }>(`${this.API}/${id}`, datos).subscribe({
+  editar(id: number, datos: { nombre: string; avatar: string | File }): void {
+    const formData = new FormData();
+    formData.append('nombre', datos.nombre);
+    
+    if (datos.avatar instanceof File) {
+      formData.append('avatarFile', datos.avatar);
+    } else if (datos.avatar) {
+      formData.append('avatar', datos.avatar);
+    }
+
+    this.http.put<{ message: string }>(`${this.API}/${id}`, formData).subscribe({
       next: () => {
         this.cargar();
       },

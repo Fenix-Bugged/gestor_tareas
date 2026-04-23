@@ -23,14 +23,10 @@
         </p>
         <div class="form-group">
           <label for="nuevo-avatar">Foto de Perfil</label>
-          <div class="avatar-selector">
-            @for (avatar of avatarsDisponibles; track avatar) {
-              <button type="button"
-                class="avatar-option"
-                [class.selected]="nuevoAvatar === avatar"
-                (click)="nuevoAvatar = avatar">
-                <img [src]="'img/' + avatar" [alt]="avatar" />
-              </button>
+          <div class="file-upload-container">
+            <input type="file" id="nuevo-avatar" (change)="onFileSelected($event)" accept="image/*" />
+            @if (nuevoAvatarPreview) {
+              <img [src]="nuevoAvatarPreview" alt="Vista previa" class="avatar-preview" />
             }
           </div>
         </div>
@@ -53,17 +49,15 @@
                 <!-- Modo Edición -->
                 <div class="edit-mode">
                   <input type="text" name="editNombre" [(ngModel)]="editandoNombre" placeholder="Nombre" required />
+                  
                   <label class="edit-avatar-label">Foto de Perfil</label>
-                  <div class="avatar-selector">
-                    @for (avatar of avatarsDisponibles; track avatar) {
-                      <button type="button"
-                        class="avatar-option"
-                        [class.selected]="editandoAvatar === avatar"
-                        (click)="editandoAvatar = avatar">
-                        <img [src]="'img/' + avatar" [alt]="avatar" />
-                      </button>
+                  <div class="file-upload-container">
+                    <input type="file" (change)="onFileSelected($event, true)" accept="image/*" />
+                    @if (editandoAvatarPreview) {
+                      <img [src]="editandoAvatarPreview" alt="Vista previa" class="avatar-preview" />
                     }
                   </div>
+
                   <div class="edit-actions">
                     <button class="btn-guardar-inline" (click)="guardarEdicion()">✔</button>
                     <button class="btn-cancelar-inline" (click)="cancelarEdicion()">✖</button>
@@ -72,7 +66,9 @@
               } @else {
                 <!-- Modo Lectura -->
                 <div class="usuario-info">
-                  <img class="usuario-avatar" [src]="'img/' + (usuario.avatar || 'usuario1.png')" [alt]="usuario.nombre" />
+                  <img class="usuario-avatar" 
+                       [src]="(usuario.avatar && usuario.avatar.startsWith('avatar-')) ? 'http://localhost:3000/uploads/' + usuario.avatar : 'img/' + (usuario.avatar || 'default-avatar.png')" 
+                       [alt]="usuario.nombre" />
                   <span>{{ usuario.nombre }}</span>
                 </div>
                 <div class="list-actions">

@@ -108,42 +108,36 @@ h4 {
   outline: none;
 }
 
-/* Avatar Selector */
-.avatar-selector {
+/* File Upload Selector */
+.file-upload-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
   margin-top: 0.4rem;
 }
 
-.avatar-option {
-  width: 52px;
-  height: 52px;
-  padding: 2px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
+.file-upload-container input[type="file"] {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px dashed rgba(160, 100, 255, 0.5);
+  padding: 0.5rem;
+  border-radius: 6px;
+  color: #c4b5d4;
   cursor: pointer;
-  transition: all 0.25s ease;
-  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.avatar-option img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.avatar-option:hover {
+.file-upload-container input[type="file"]:hover {
   border-color: #a78bfa;
-  transform: scale(1.1);
 }
 
-.avatar-option.selected {
-  border-color: #9300B5;
-  box-shadow: 0 0 10px rgba(147, 0, 181, 0.6);
-  transform: scale(1.1);
+.avatar-preview {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #a78bfa;
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.3);
 }
 
 .edit-avatar-label {

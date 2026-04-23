@@ -14,46 +14,60 @@ export class GestorUsuarios implements OnInit {
   @Output() cerrar = new EventEmitter<void>();
 
   nuevoNombre = '';
-  nuevoAvatar = '';
+  nuevoAvatarFile: File | null = null;
+  nuevoAvatarPreview: string | null = null;
   errorMsg = signal('');
   successMsg = signal('');
 
   editandoId = signal<number | null>(null);
   editandoNombre = '';
-  editandoAvatar = '';
-
-  avatarsDisponibles = [
-    'usuario1.png',
-    'usuario2.png',
-    'usuario3.png',
-    'usuario4.png',
-    'usuario5.jpg',
-    'usuario6.jpg',
-  ];
+  editandoAvatarFile: File | null = null;
+  editandoAvatarPreview: string | null = null;
 
   ngOnInit() {
     this.usuariosService.cargar();
   }
 
+  onFileSelected(event: any, isEdit: boolean = false) {
+    const file: File = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (isEdit) {
+          this.editandoAvatarFile = file;
+          this.editandoAvatarPreview = e.target.result;
+        } else {
+          this.nuevoAvatarFile = file;
+          this.nuevoAvatarPreview = e.target.result;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   crearUsuario() {
     if (!this.nuevoNombre.trim()) return;
 
-    this.usuariosService.agregar(this.nuevoNombre, this.nuevoAvatar || this.avatarsDisponibles[0]);
+    this.usuariosService.agregar(this.nuevoNombre, this.nuevoAvatarFile || 'default-avatar.png');
     this.successMsg.set('Usuario creado con éxito');
     this.errorMsg.set('');
     this.nuevoNombre = '';
-    this.nuevoAvatar = '';
+    this.nuevoAvatarFile = null;
+    this.nuevoAvatarPreview = null;
     setTimeout(() => this.successMsg.set(''), 3000);
   }
 
   empezarEdicion(usuario: UsuarioModel) {
     this.editandoId.set(usuario.id);
     this.editandoNombre = usuario.nombre;
-    this.editandoAvatar = usuario.avatar || '';
+    this.editandoAvatarFile = null;
+    this.editandoAvatarPreview = usuario.avatar ? 'http://localhost:3000/uploads/' + usuario.avatar : 'img/default-avatar.png';
   }
 
   cancelarEdicion() {
     this.editandoId.set(null);
+    this.editandoAvatarFile = null;
+    this.editandoAvatarPreview = null;
   }
 
   guardarEdicion() {
@@ -62,7 +76,7 @@ export class GestorUsuarios implements OnInit {
 
     this.usuariosService.editar(id, {
       nombre: this.editandoNombre,
-      avatar: this.editandoAvatar
+      avatar: this.editandoAvatarFile || this.editandoAvatarPreview?.replace('http://localhost:3000/uploads/', '') || 'default-avatar.png'
     });
     this.successMsg.set('Usuario actualizado');
     this.errorMsg.set('');

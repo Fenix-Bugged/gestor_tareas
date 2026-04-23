@@ -65,29 +65,8 @@ const upload = multer({
     }
 });
 
-const allowedOrigins = [
-    process.env.FRONTEND_URL?.trim().replace(/\/$/, ""), // Quitar barra final si existe
-    'http://localhost:4200'
-].filter(Boolean);
-
 app.use(cors({
-    origin: (origin, callback) => {
-        // En desarrollo o peticiones sin origen (como Postman), permitir siempre
-        if (!origin || process.env.NODE_ENV !== 'production') {
-            return callback(null, true);
-        }
-
-        // Limpiar el origen entrante para la comparacion
-        const cleanOrigin = origin.replace(/\/$/, "");
-
-        if (allowedOrigins.includes(cleanOrigin)) {
-            callback(null, true);
-        } else {
-            console.error(`❌ CORS Bloqueado: El origen ${origin} no está en la whitelist.`);
-            console.error(`Whitelist actual: ${allowedOrigins.join(', ')}`);
-            callback(new Error('CORS: Origen no permitido'));
-        }
-    },
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));

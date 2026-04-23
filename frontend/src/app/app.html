@@ -1,6 +1,7 @@
 <app-encabezado 
   (abrirLogin)="abrirLogin()" 
   (abrirGestor)="abrirGestorAdmins()"
+  (abrirGestorUsuarios)="abrirGestorUsuarios()"
   (resetear)="resetearFiltros()">
 </app-encabezado>
 
@@ -12,17 +13,27 @@
   <app-gestor-admins (cerrar)="cerrarGestorAdmins()" />
 }
 
+@if (mostrandoGestorUsuarios()) {
+  <app-gestor-usuarios (cerrar)="cerrarGestorUsuarios()" />
+}
+
 <main>
-  <!-- Restauramos la barra lateral con los usuarios -->
+  <!-- Barra lateral con los usuarios -->
   <ul id="usuarios">
-    @for (usuario of usuarios; track usuario.id) {
-      <li>
-        <app-usuario
-          [usuario]="usuario"
-          [seleccionado]="usuario.id === idUsuarioSeleccionado()"
-          (seleccionar)="alSeleccionarUsuario($event)"
-        />
-      </li>
+    @if (usuariosService.error()) {
+      <li class="textoCondicional">{{ usuariosService.error() }}</li>
+    } @else if (usuariosService.cargando()) {
+      <li class="textoCondicional">Cargando usuarios...</li>
+    } @else {
+      @for (usuario of usuariosService.usuarios(); track usuario.id) {
+        <li>
+          <app-usuario
+            [usuario]="usuario"
+            [seleccionado]="usuario.id === idUsuarioSeleccionado()"
+            (seleccionar)="alSeleccionarUsuario($event)"
+          />
+        </li>
+      }
     }
   </ul>
 

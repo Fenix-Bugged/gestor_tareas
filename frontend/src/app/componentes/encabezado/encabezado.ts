@@ -12,6 +12,7 @@ export class Encabezado {
   
   @Output() abrirLogin = new EventEmitter<void>();
   @Output() abrirGestor = new EventEmitter<void>();
+  @Output() abrirGestorUsuarios = new EventEmitter<void>();
   @Output() resetear = new EventEmitter<void>();
 
   onLogoClick() {
@@ -28,5 +29,9 @@ export class Encabezado {
 
   onGestorAction() {
     this.abrirGestor.emit();
+  }
+
+  onGestorUsuariosAction() {
+    this.abrirGestorUsuarios.emit();
   }
 }

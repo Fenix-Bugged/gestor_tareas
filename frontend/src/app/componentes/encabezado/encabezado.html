@@ -9,6 +9,9 @@
   
   <div class="header-actions" style="display: flex; gap: 1rem;">
     @if (authService.isLoggedIn()) {
+      <button class="auth-btn btn-gestor-usuarios" (click)="onGestorUsuariosAction()" style="background: rgba(147, 0, 181, 0.25); border-color: #9300B5;">
+        👤 Gestión Usuarios
+      </button>
       <button class="auth-btn btn-gestor" (click)="onGestorAction()" style="background: rgba(160, 100, 255, 0.2); border-color: #a78bfa;">
         ⚙️ Gestión Admins
       </button>

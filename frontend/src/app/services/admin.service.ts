@@ -12,7 +12,7 @@ export interface AdminModel {
 })
 export class AdminService {
   private http = inject(HttpClient);
-  private readonly API = 'https://easygoing-nature-production.up.railway.app/administradores';
+  private readonly API = 'http://localhost:3000/administradores';
 
   admins = signal<AdminModel[]>([]);
   cargando = signal(false);

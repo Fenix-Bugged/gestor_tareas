@@ -27,7 +27,7 @@
   border: 1px solid rgba(160, 100, 255, 0.3);
   border-radius: 16px;
   padding: 1.5rem 2rem;
-  width: min(90vw, 800px);
+  width: min(90vw, 850px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
   color: #e0c8ff;
   max-height: 85vh;
@@ -108,11 +108,50 @@ h4 {
   outline: none;
 }
 
-.form-section small {
+/* Avatar Selector */
+.avatar-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.avatar-option {
+  width: 52px;
+  height: 52px;
+  padding: 2px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.avatar-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-option:hover {
+  border-color: #a78bfa;
+  transform: scale(1.1);
+}
+
+.avatar-option.selected {
+  border-color: #9300B5;
+  box-shadow: 0 0 10px rgba(147, 0, 181, 0.6);
+  transform: scale(1.1);
+}
+
+.edit-avatar-label {
   display: block;
-  margin-top: 0.3rem;
-  font-size: 0.75rem;
-  color: #8b75a1;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #a78bfa;
+  margin-bottom: 0.3rem;
 }
 
 .btn-save {
@@ -124,11 +163,17 @@ h4 {
   cursor: pointer;
   width: 100%;
   font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
 }
 
 .btn-save:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .admin-list {
@@ -146,14 +191,28 @@ h4 {
   align-items: center;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  min-height: 48px;
+  min-height: 56px;
 }
 
 .admin-list li:last-child {
   border-bottom: none;
 }
 
-.admin-list span {
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.usuario-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(147, 0, 181, 0.4);
+}
+
+.usuario-info span {
   font-weight: bold;
   font-size: 0.95rem;
 }
@@ -171,6 +230,7 @@ h4 {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.8rem;
+  transition: all 0.2s ease;
 }
 
 .btn-editar:hover {
@@ -186,6 +246,7 @@ h4 {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.8rem;
+  transition: all 0.2s ease;
 }
 
 .btn-borrar:hover {
@@ -219,6 +280,11 @@ h4 {
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-guardar-inline:hover {
+  background: #059669;
 }
 
 .btn-cancelar-inline {
@@ -228,6 +294,11 @@ h4 {
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar-inline:hover {
+  background: #4b5563;
 }
 
 .alert-banner {

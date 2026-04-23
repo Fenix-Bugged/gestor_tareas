@@ -10,7 +10,7 @@ import { Tarjeta } from '../tarjeta/tarjeta';
 })
 export class Usuario {
   @Input({ required: true }) usuario!: {
-    id: string;
+    id: number;
     avatar: string;
     nombre: string;
   };
@@ -18,7 +18,7 @@ export class Usuario {
   // ESTA ES LA LÍNEA QUE AGREGAMOS
   @Input({ required: true }) seleccionado!: boolean;
 
-  @Output() seleccionar = new EventEmitter<string>();
+  @Output() seleccionar = new EventEmitter<number>();
 
   get rutaAvatar() {
     // Mantengo tu ruta de carpeta 'img/'

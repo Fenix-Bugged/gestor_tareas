@@ -1,0 +1,89 @@
+<div class="modal-overlay" (click)="cerrarModal()"></div>
+<dialog open class="gestor-dialog">
+  <div class="gestor-header">
+    <h3>Gestión de Usuarios</h3>
+    <button class="btn-close" (click)="cerrarModal()">×</button>
+  </div>
+
+  @if (errorMsg()) {
+    <div class="alert-banner error">{{ errorMsg() }}</div>
+  }
+  @if (successMsg()) {
+    <div class="alert-banner success">{{ successMsg() }}</div>
+  }
+
+  <div class="gestor-grid">
+    <!-- Formulario para agregar nuevo Usuario -->
+    <section class="form-section">
+      <h4>Agregar Nuevo Usuario</h4>
+      <form (ngSubmit)="crearUsuario()">
+        <p>
+          <label for="nuevo-nombre">Nombre</label>
+          <input type="text" id="nuevo-nombre" name="nombre" [(ngModel)]="nuevoNombre" placeholder="Nombre del usuario" required />
+        </p>
+        <div class="form-group">
+          <label for="nuevo-avatar">Foto de Perfil</label>
+          <div class="avatar-selector">
+            @for (avatar of avatarsDisponibles; track avatar) {
+              <button type="button"
+                class="avatar-option"
+                [class.selected]="nuevoAvatar === avatar"
+                (click)="nuevoAvatar = avatar">
+                <img [src]="'img/' + avatar" [alt]="avatar" />
+              </button>
+            }
+          </div>
+        </div>
+        <button type="submit" class="btn-save" [disabled]="!nuevoNombre">
+          Crear Usuario
+        </button>
+      </form>
+    </section>
+
+    <!-- Lista de Usuarios Actuales -->
+    <section class="list-section">
+      <h4>Usuarios Actuales</h4>
+      @if (usuariosService.cargando()) {
+        <p>Cargando usuarios...</p>
+      } @else {
+        <ul class="admin-list">
+          @for (usuario of usuariosService.usuarios(); track usuario.id) {
+            <li>
+              @if (editandoId() === usuario.id) {
+                <!-- Modo Edición -->
+                <div class="edit-mode">
+                  <input type="text" name="editNombre" [(ngModel)]="editandoNombre" placeholder="Nombre" required />
+                  <label class="edit-avatar-label">Foto de Perfil</label>
+                  <div class="avatar-selector">
+                    @for (avatar of avatarsDisponibles; track avatar) {
+                      <button type="button"
+                        class="avatar-option"
+                        [class.selected]="editandoAvatar === avatar"
+                        (click)="editandoAvatar = avatar">
+                        <img [src]="'img/' + avatar" [alt]="avatar" />
+                      </button>
+                    }
+                  </div>
+                  <div class="edit-actions">
+                    <button class="btn-guardar-inline" (click)="guardarEdicion()">✔</button>
+                    <button class="btn-cancelar-inline" (click)="cancelarEdicion()">✖</button>
+                  </div>
+                </div>
+              } @else {
+                <!-- Modo Lectura -->
+                <div class="usuario-info">
+                  <img class="usuario-avatar" [src]="'img/' + (usuario.avatar || 'usuario1.png')" [alt]="usuario.nombre" />
+                  <span>{{ usuario.nombre }}</span>
+                </div>
+                <div class="list-actions">
+                  <button class="btn-editar" (click)="empezarEdicion(usuario)">Editar</button>
+                  <button class="btn-borrar" (click)="borrarUsuario(usuario.id)">Borrar</button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</dialog>

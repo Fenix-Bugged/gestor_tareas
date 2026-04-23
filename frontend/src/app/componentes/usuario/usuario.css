@@ -2,16 +2,16 @@ button {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.5rem;
   background-color: var(--sidebar-norm);
   color: var(--texto-prin);
   border: none;
   font: inherit;
   cursor: pointer;
   width: 100%;
-  min-width: 12rem;
+  min-width: 14rem;
   text-align: left;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
@@ -20,16 +20,17 @@ button:hover {
   background-color: var(--sidebar-sel);
   color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(147, 0, 181, 0.35);
 }
 
 button.active {
   background-color: var(--sidebar-sel);
-  box-shadow: 0 4px 12px rgba(147, 0, 181, 0.4);
+  box-shadow: 0 4px 15px rgba(147, 0, 181, 0.5);
 }
 
 img {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 3.8rem;
+  height: 3.8rem;
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
@@ -38,6 +39,6 @@ img {
 
 span {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 500;
 }

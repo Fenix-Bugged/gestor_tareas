@@ -23,7 +23,7 @@ export class AuthService {
   }
 
   login(username: string, password: string) {
-    return this.http.post<{ token: string, username: string }>('https://easygoing-nature-production.up.railway.app/login', { username, password })
+    return this.http.post<{ token: string, username: string }>('http://localhost:3000/login', { username, password })
       .pipe(
         tap(res => {
           this.token.set(res.token);

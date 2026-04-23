@@ -25,7 +25,7 @@ button {
   font: inherit;
   cursor: pointer;
   background-color: var(--boton-global);
-  border: 2px solid var(--body-bg);
+  border: 2px solid #000;
   color: var(--texto-prin);
   padding: 0.8rem 1.5rem;
   border-radius: 6px;
@@ -36,6 +36,7 @@ button {
 
 button:hover {
   transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--glow-boton);
 }
 
 ul {

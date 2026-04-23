@@ -36,12 +36,12 @@ header p {
 
 .auth-btn {
   background-color: var(--boton-global);
-  border: 2px solid var(--body-bg);
+  border: 2px solid #000;
   color: var(--texto-prin);
-  padding: 0.6rem 1.5rem;
+  padding: 0.8rem 1.8rem;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 0 0 rgba(0,0,0,0);
@@ -49,6 +49,7 @@ header p {
 
 .auth-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--glow-boton);
 }
 
 .header-actions {

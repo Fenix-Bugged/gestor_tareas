@@ -1,30 +1,37 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { Encabezado } from './componentes/encabezado/encabezado';
 import { Login } from './componentes/login/login';
 import { Tareas } from './componentes/tareas/tareas';
 import { Usuario } from './componentes/usuario/usuario';
 import { GestorAdmins } from './componentes/gestor-admins/gestor-admins';
-import { USUARIOS_FALSOS } from './usuarios-falsos';
+import { GestorUsuarios } from './componentes/gestor-usuarios/gestor-usuarios';
+import { UsuariosService } from './services/usuarios.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [Encabezado, Login, Tareas, Usuario, GestorAdmins],
+  imports: [Encabezado, Login, Tareas, Usuario, GestorAdmins, GestorUsuarios],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  usuariosService = inject(UsuariosService);
+
   mostrandoLogin = signal(false);
   mostrandoGestorAdmins = signal(false);
+  mostrandoGestorUsuarios = signal(false);
 
-  usuarios = USUARIOS_FALSOS;
-  idUsuarioSeleccionado = signal<string>('u1');
+  idUsuarioSeleccionado = signal<number | null>(null);
 
   get usuarioSeleccionado() {
-    return this.usuarios.find((u) => u.id === this.idUsuarioSeleccionado());
+    return this.usuariosService.usuarios().find((u) => u.id === this.idUsuarioSeleccionado());
   }
 
-  alSeleccionarUsuario(id: string) {
+  ngOnInit() {
+    this.usuariosService.cargar();
+  }
+
+  alSeleccionarUsuario(id: number) {
     this.idUsuarioSeleccionado.set(id);
   }
 
@@ -44,7 +51,17 @@ export class AppComponent {
     this.mostrandoGestorAdmins.set(false);
   }
 
+  abrirGestorUsuarios() {
+    this.mostrandoGestorUsuarios.set(true);
+  }
+
+  cerrarGestorUsuarios() {
+    this.mostrandoGestorUsuarios.set(false);
+    // Recargar usuarios por si se crearon/editaron/borraron
+    this.usuariosService.cargar();
+  }
+
   resetearFiltros() {
-    this.idUsuarioSeleccionado.set('');
+    this.idUsuarioSeleccionado.set(null);
   }
 }

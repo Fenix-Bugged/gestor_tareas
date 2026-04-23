@@ -7,12 +7,12 @@ import { TareaModel } from '../tarea/tarea.model';
 })
 export class TareasService {
   private http = inject(HttpClient);
-  private readonly API = 'https://easygoing-nature-production.up.railway.app/tareas';
+  private readonly API = 'http://localhost:3000/tareas';
 
   tareas = signal<TareaModel[]>([]);
   cargando = signal<boolean>(false);
 
-  cargar(idUsuario: string): void {
+  cargar(idUsuario: number): void {
     this.cargando.set(true);
     this.http.get<TareaModel[]>(`${this.API}?idUsuario=${idUsuario}`).subscribe({
       next: (data) => {
@@ -26,7 +26,7 @@ export class TareasService {
     });
   }
 
-  agregar(idUsuario: string, titulo: string, descripcion: string, fechaLimite: string): void {
+  agregar(idUsuario: number, titulo: string, descripcion: string, fechaLimite: string): void {
     const body = {
       idUsuario,
       titulo,

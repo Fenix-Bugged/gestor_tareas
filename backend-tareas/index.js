@@ -35,7 +35,7 @@ const dbUrl = MYSQL_URL || DATABASE_URL;
 const dbConfig = {
     host:     MYSQLHOST     || MYSQL_HOST     || DB_HOST     || 'localhost',
     user:     MYSQLUSER     || MYSQL_USER     || DB_USER     || 'root',
-    password: MYSQLPASSWORD || MYSQL_PASSWORD || DB_PASSWORD || '',
+    password: MYSQLPASSWORD || MYSQL_PASSWORD || DB_PASSWORD || '123456',
     database: MYSQLDATABASE || MYSQL_DATABASE || DB_NAME     || 'gestor_tareas',
     port:     MYSQLPORT     || MYSQL_PORT     || DB_PORT     || 3306,
     ssl: (MYSQLHOST || MYSQL_URL || DATABASE_URL) ? { rejectUnauthorized: false } : false,
@@ -84,14 +84,23 @@ checkConnection();
 
 // Inicialización de Tablas
 const initDB = async () => {
+    const createUsuariosTableQuery = `
+      CREATE TABLE IF NOT EXISTS usuarios (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(255) NOT NULL,
+        avatar VARCHAR(255)
+      )
+    `;
+
     const createTareasTableQuery = `
       CREATE TABLE IF NOT EXISTS tareas (
         id          INT AUTO_INCREMENT PRIMARY KEY,
-        idUsuario   VARCHAR(50) NOT NULL,
+        idUsuario   INT NOT NULL,
         titulo      VARCHAR(255) NOT NULL,
         descripcion TEXT,
         fechaLimite DATE,
-        estado      ENUM('pendiente','completada') DEFAULT 'pendiente'
+        estado      ENUM('pendiente','completada') DEFAULT 'pendiente',
+        FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
       )
     `;
 
@@ -103,27 +112,14 @@ const initDB = async () => {
       )
     `;
 
-    db.query(createTareasTableQuery, (err) => {
-        if (err) {
-            console.error('❌ Error creando tabla de tareas:', err.message);
-        } else {
-            // Intentar añadir columnas en caso de que la tabla ya existiera sin ellas
-            db.query('ALTER TABLE tareas ADD COLUMN descripcion TEXT', (alterErr) => {
-                if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
-                    console.error('❌ Error añadiendo columna descripcion:', alterErr.message);
-                }
-            });
-            db.query('ALTER TABLE tareas ADD COLUMN fechaLimite DATE', (alterErr) => {
-                if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
-                    console.error('❌ Error añadiendo columna fechaLimite:', alterErr.message);
-                }
-            });
-            db.query("ALTER TABLE tareas ADD COLUMN estado ENUM('pendiente','completada') DEFAULT 'pendiente'", (alterErr) => {
-                if (alterErr && alterErr.code !== 'ER_DUP_FIELDNAME') {
-                    console.error('❌ Error añadiendo columna estado:', alterErr.message);
-                }
-            });
-        }
+    db.query(createUsuariosTableQuery, (err) => {
+        if (err) console.error('❌ Error creando tabla de usuarios:', err.message);
+        
+        db.query(createTareasTableQuery, (err) => {
+            if (err) {
+                console.error('❌ Error creando tabla de tareas:', err.message);
+            }
+        });
     });
 
     db.query(createAdminsTableQuery, (err) => {
@@ -270,6 +266,48 @@ app.post('/tareas', verificarToken, (req, res) => {
         }
         console.log('✅ Tarea guardada con ID:', result.insertId);
         res.json({ message: 'Tarea guardada', id: result.insertId });
+    });
+});
+
+// ==========================================
+// GESTIÓN DE USUARIOS
+// ==========================================
+
+// GET - Listar usuarios (PÚBLICO)
+app.get('/usuarios', (req, res) => {
+    db.query('SELECT * FROM usuarios', (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.json(results);
+    });
+});
+
+// POST - Crear usuario (PROTEGIDO)
+app.post('/usuarios', verificarToken, (req, res) => {
+    const { nombre, avatar } = req.body;
+    if (!nombre) return res.status(400).json({ error: 'Nombre es requerido' });
+    
+    db.query('INSERT INTO usuarios (nombre, avatar) VALUES (?, ?)', [nombre, avatar || null], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json({ message: 'Usuario creado', id: result.insertId });
+    });
+});
+
+// PUT - Editar usuario (PROTEGIDO)
+app.put('/usuarios/:id', verificarToken, (req, res) => {
+    const { id } = req.params;
+    const { nombre, avatar } = req.body;
+    db.query('UPDATE usuarios SET nombre = ?, avatar = ? WHERE id = ?', [nombre, avatar || null, id], (err) => {
+        if (err) return res.status(500).send(err);
+        res.json({ message: 'Usuario actualizado' });
+    });
+});
+
+// DELETE - Borrar usuario (PROTEGIDO)
+app.delete('/usuarios/:id', verificarToken, (req, res) => {
+    const { id } = req.params;
+    db.query('DELETE FROM usuarios WHERE id = ?', [id], (err) => {
+        if (err) return res.status(500).send(err);
+        res.json({ message: 'Usuario eliminado' });
     });
 });
 

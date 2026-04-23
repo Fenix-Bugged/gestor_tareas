@@ -16,7 +16,7 @@ export class Tareas {
   tareasService = inject(TareasService);
   authService = inject(AuthService);
 
-  idUsuario = input.required<string>();
+  idUsuario = input.required<number>();
   nombre = input.required<string>();
 
   estaAnadiendoTarea = signal(false);

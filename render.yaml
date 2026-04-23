@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: gestor-tareas-backend
+    env: node
+    region: ohio # TiDB is us-east-1, Ohio (us-east-2) is Render's closest free tier region
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: DB_HOST
+        value: gateway01.us-east-1.prod.aws.tidbcloud.com
+      - key: DB_USER
+        value: sEULXyKon2DFeCe.root
+      - key: DB_NAME
+        value: test
+      - key: DB_PORT
+        value: 4000
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: PORT
+        value: 3000
+    rootDir: backend-tareas

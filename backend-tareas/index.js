@@ -85,11 +85,6 @@ const {
     MYSQLPORT, MYSQL_PORT, DB_PORT
 } = process.env;
 
-console.log("=== DEBUG RAILWAY ===");
-console.log("Variables detectadas:", Object.keys(process.env).join(', '));
-if (MYSQL_URL || DATABASE_URL) console.log("=> ¡URL de base de datos encontrada!");
-else console.log("=> Usando configuración de host individual.");
-
 const dbUrl = MYSQL_URL || DATABASE_URL;
 
 const dbConfig = {
@@ -98,7 +93,9 @@ const dbConfig = {
     password: MYSQLPASSWORD || MYSQL_PASSWORD || DB_PASSWORD || '',
     database: MYSQLDATABASE || MYSQL_DATABASE || DB_NAME,
     port:     MYSQLPORT     || MYSQL_PORT     || DB_PORT     || 3306,
-    ssl: (MYSQLHOST || MYSQL_URL || DATABASE_URL) ? { rejectUnauthorized: false } : false,
+    ssl: ((MYSQLHOST || MYSQL_HOST || DB_HOST || '').includes('tidbcloud')) 
+        ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } 
+        : ((MYSQLHOST || MYSQL_URL || DATABASE_URL) ? { rejectUnauthorized: false } : false),
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -106,19 +103,13 @@ const dbConfig = {
     keepAliveInitialDelay: 10000
 };
 
-console.log("=== CONFIGURACIÓN DE CONEXIÓN ===");
-console.log(`Host: ${dbConfig.host}`);
-console.log(`Database: ${dbConfig.database}`);
-console.log(`User: ${dbConfig.user}`);
-console.log(`SSL: ${!!dbConfig.ssl}`);
-
 // Usar el Pool de forma más robusta
 let db;
 if (dbUrl) {
     console.log("=> Usando URL de conexión (DATABASE_URL/MYSQL_URL)");
     db = mysql.createPool({
         uri: dbUrl,
-        ssl: { rejectUnauthorized: false },
+        ssl: dbUrl.includes('tidbcloud') ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } : { rejectUnauthorized: false },
         waitForConnections: true,
         connectionLimit: 10
     });
@@ -142,66 +133,55 @@ const checkConnection = () => {
 };
 checkConnection();
 
-// Inicialización de Tablas
+// Inicialización y Auto-Healing de Tablas
 const initDB = async () => {
-    const createUsuariosTableQuery = `
-      CREATE TABLE IF NOT EXISTS usuarios (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nombre VARCHAR(255) NOT NULL,
-        avatar VARCHAR(255)
-      )
-    `;
-
-    const createTareasTableQuery = `
-      CREATE TABLE IF NOT EXISTS tareas (
-        id          INT AUTO_INCREMENT PRIMARY KEY,
-        idUsuario   INT NOT NULL,
-        titulo      VARCHAR(255) NOT NULL,
-        descripcion TEXT,
-        fechaLimite DATE,
-        estado      ENUM('pendiente','completada') DEFAULT 'pendiente',
-        FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
-      )
-    `;
-
-    const createAdminsTableQuery = `
-      CREATE TABLE IF NOT EXISTS administradores (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(100) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL
-      )
-    `;
-
-    db.query(createUsuariosTableQuery, (err) => {
-        if (err) console.error('❌ Error creando tabla de usuarios:', err.message);
+    try {
+        const pool = db.promise();
         
-        db.query(createTareasTableQuery, (err) => {
-            if (err) {
-                console.error('❌ Error creando tabla de tareas:', err.message);
-            }
-        });
-    });
+        console.log('🔄 Iniciando secuencia de Auto-Healing de base de datos...');
 
-    db.query(createAdminsTableQuery, (err) => {
-        if (err) {
-            console.error('❌ Error creando tabla de administradores:', err.message);
-            return;
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS usuarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(255) NOT NULL,
+            avatar VARCHAR(255)
+          )
+        `);
+        console.log('✔️ Tabla "usuarios" verificada/creada');
+
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS tareas (
+            id          INT AUTO_INCREMENT PRIMARY KEY,
+            idUsuario   INT NOT NULL,
+            titulo      VARCHAR(255) NOT NULL,
+            descripcion TEXT,
+            fechaLimite DATE,
+            estado      ENUM('pendiente','completada') DEFAULT 'pendiente',
+            FOREIGN KEY (idUsuario) REFERENCES usuarios(id) ON DELETE CASCADE
+          )
+        `);
+        console.log('✔️ Tabla "tareas" verificada/creada');
+
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS administradores (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL
+          )
+        `);
+        console.log('✔️ Tabla "administradores" verificada/creada');
+
+        const [results] = await pool.query('SELECT COUNT(*) AS count FROM administradores');
+        if (results[0].count === 0) {
+            const hashed = await bcrypt.hash('admin123', 10);
+            await pool.query('INSERT INTO administradores (username, password) VALUES (?, ?)', ['admin', hashed]);
+            console.log('🌱 Admin por defecto creado (admin/admin123)');
         }
-
-        db.query('SELECT COUNT(*) AS count FROM administradores', async (err, results) => {
-            if (!err && results[0].count === 0) {
-                try {
-                    const hashed = await bcrypt.hash('admin123', 10);
-                    db.query('INSERT INTO administradores (username, password) VALUES (?, ?)', ['admin', hashed], (err) => {
-                        if (!err) console.log('🌱 Admin por defecto creado (admin/admin123)');
-                        else console.error('❌ Error creando admin por defecto:', err.message);
-                    });
-                } catch (hashErr) {
-                    console.error('❌ Error encriptando admin por defecto:', hashErr.message);
-                }
-            }
-        });
-    });
+        
+        console.log('✅ Secuencia de Auto-Healing completada con éxito.');
+    } catch (err) {
+        console.error('❌ Error crítico durante el Auto-Healing de la base de datos:', err.message);
+    }
 };
 
 initDB();
@@ -460,6 +440,19 @@ process.on('uncaughtException', (err) => {
     console.error('⚠️ Uncaught Exception thrown:', err.message);
     console.error(err.stack);
 });
+
+// Manejo de apagado gracioso (Graceful Shutdown)
+const gracefulShutdown = () => {
+    console.log('\n🛑 Cerrando servidor y conexiones de base de datos...');
+    db.end((err) => {
+        if (err) console.error('Error cerrando el pool de MySQL:', err.message);
+        else console.log('✅ Pool de conexiones cerrado.');
+        process.exit(0);
+    });
+};
+
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {

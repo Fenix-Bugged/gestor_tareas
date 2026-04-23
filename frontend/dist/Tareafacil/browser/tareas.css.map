@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/componentes/tareas/tareas.css"],
-  "sourcesContent": ["#tareas {\r\n  background-color: #382d52; /* Fondo oscuro del contenedor */\r\n  padding: 1.5rem;\r\n  border-radius: 8px;\r\n  color: rgb(255, 255, 255);\r\n}\r\n\r\nheader {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 1rem;\r\n}\r\n\r\nheader h2 {\r\n  margin: 0;\r\n  font-size: 1.5rem;\r\n}\r\n\r\nbutton {\r\n  font: inherit;\r\n  cursor: pointer;\r\n  background-color: #842adf;\r\n  border: none;\r\n  color: #000000;\r\n  padding: 0.5rem 1.5rem;\r\n  border-radius: 4px;\r\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\r\n}\r\n\r\nbutton:hover {\r\n  background-color: #2c0b3a;\r\n}"],
-  "mappings": ";AAAA,CAAC;AACC,oBAAkB;AAClB,WAAS;AACT,iBAAe;AACf,SAAO,IAAI,GAAG,EAAE,GAAG,EAAE;AACvB;AAEA;AACE,WAAS;AACT,mBAAiB;AACjB,eAAa;AACb,iBAAe;AACjB;AAEA,OAAO;AACL,UAAQ;AACR,aAAW;AACb;AAEA;AACE,QAAM;AACN,UAAQ;AACR,oBAAkB;AAClB,UAAQ;AACR,SAAO;AACP,WAAS,OAAO;AAChB,iBAAe;AACf,cAAY,EAAE,IAAI,IAAI,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AACtC;AAEA,MAAM;AACJ,oBAAkB;AACpB;",
-  "names": []
-}

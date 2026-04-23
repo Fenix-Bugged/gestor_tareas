@@ -9,7 +9,18 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const JWT_SECRET = 'secreto_super_seguro_gestor_tareas_123';
+
+// Validación de variables de entorno críticas
+const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_NAME'];
+const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingVars.length > 0) {
+    console.error(`❌ ERROR CRÍTICO: Faltan las siguientes variables de entorno: ${missingVars.join(', ')}`);
+    console.error('Por favor, configúralas en tu archivo .env o en el entorno de despliegue.');
+    process.exit(1);
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Asegurarse de que el directorio uploads exista
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -72,10 +83,10 @@ else console.log("=> Usando configuración de host individual.");
 const dbUrl = MYSQL_URL || DATABASE_URL;
 
 const dbConfig = {
-    host:     MYSQLHOST     || MYSQL_HOST     || DB_HOST     || 'localhost',
-    user:     MYSQLUSER     || MYSQL_USER     || DB_USER     || 'root',
-    password: MYSQLPASSWORD || MYSQL_PASSWORD || DB_PASSWORD || '123456',
-    database: MYSQLDATABASE || MYSQL_DATABASE || DB_NAME     || 'gestor_tareas',
+    host:     MYSQLHOST     || MYSQL_HOST     || DB_HOST,
+    user:     MYSQLUSER     || MYSQL_USER     || DB_USER,
+    password: MYSQLPASSWORD || MYSQL_PASSWORD || DB_PASSWORD || '',
+    database: MYSQLDATABASE || MYSQL_DATABASE || DB_NAME,
     port:     MYSQLPORT     || MYSQL_PORT     || DB_PORT     || 3306,
     ssl: (MYSQLHOST || MYSQL_URL || DATABASE_URL) ? { rejectUnauthorized: false } : false,
     waitForConnections: true,

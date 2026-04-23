@@ -1,6 +1,7 @@
 services:
   - type: web
     name: gestor-tareas-backend
+    plan: free
     env: node
     region: ohio # TiDB is us-east-1, Ohio (us-east-2) is Render's closest free tier region
     buildCommand: npm install

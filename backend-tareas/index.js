@@ -11,13 +11,22 @@ const fs = require('fs');
 const app = express();
 
 // Validación de variables de entorno críticas
-const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_NAME'];
-const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-
-if (missingVars.length > 0) {
-    console.error(`❌ ERROR CRÍTICO: Faltan las siguientes variables de entorno: ${missingVars.join(', ')}`);
-    console.error('Por favor, configúralas en tu archivo .env o en el entorno de despliegue.');
+if (!process.env.JWT_SECRET) {
+    console.error('❌ ERROR CRÍTICO: Falta la variable de entorno: JWT_SECRET');
+    console.error('Por favor, configúrala en tu archivo .env o en el entorno de despliegue.');
     process.exit(1);
+}
+
+const hasDbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+if (!hasDbUrl) {
+    const requiredDbVars = ['DB_HOST', 'DB_USER', 'DB_NAME'];
+    const missingDbVars = requiredDbVars.filter(envVar => !process.env[envVar]);
+    
+    if (missingDbVars.length > 0) {
+        console.error(`❌ ERROR CRÍTICO: Faltan variables de base de datos: ${missingDbVars.join(', ')}`);
+        console.error('Configura las variables individuales o provee MYSQL_URL / DATABASE_URL.');
+        process.exit(1);
+    }
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;

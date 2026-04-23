@@ -65,31 +65,27 @@ const upload = multer({
     }
 });
 
-// CONFIGURACIÓN DE SEGURIDAD CORS (Senior Level)
-const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    'http://localhost:4200'
-].map(url => url?.trim().replace(/\/$/, "")); // Limpiar URLs
-
+// SEGURIDAD CORS INTELIGENTE (Solución Definitiva)
 app.use(cors({
     origin: (origin, callback) => {
-        // 1. Permitir peticiones sin origen (como Postman o el propio servidor)
+        // 1. Permitir si no hay origen (Postman, etc)
         if (!origin) return callback(null, true);
-        
-        // 2. Limpiar el origen que viene del navegador
-        const cleanOrigin = origin.trim().replace(/\/$/, "");
 
-        // 3. Verificar contra la lista blanca
-        if (allowedOrigins.includes(cleanOrigin)) {
+        // 2. Permitir automáticamente cualquier subdominio de Vercel o Localhost
+        const isVercel = origin.endsWith('.vercel.app');
+        const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+        const isAllowedExplicit = process.env.FRONTEND_URL && origin.includes(process.env.FRONTEND_URL.trim());
+
+        if (isVercel || isLocal || isAllowedExplicit) {
             callback(null, true);
         } else {
-            console.error(`🛑 Bloqueo CORS: ${origin} no está autorizado.`);
-            console.error(`Configurado en FRONTEND_URL: ${process.env.FRONTEND_URL}`);
-            callback(new Error('No autorizado por CORS'));
+            console.error(`CORS bloqueado para: ${origin}`);
+            callback(new Error('Origen no permitido por política de seguridad'));
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 app.use(express.json());
 

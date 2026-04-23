@@ -65,8 +65,29 @@ const upload = multer({
     }
 });
 
+// CONFIGURACIÓN DE SEGURIDAD CORS (Senior Level)
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:4200'
+].map(url => url?.trim().replace(/\/$/, "")); // Limpiar URLs
+
 app.use(cors({
-    origin: '*',
+    origin: (origin, callback) => {
+        // 1. Permitir peticiones sin origen (como Postman o el propio servidor)
+        if (!origin) return callback(null, true);
+        
+        // 2. Limpiar el origen que viene del navegador
+        const cleanOrigin = origin.trim().replace(/\/$/, "");
+
+        // 3. Verificar contra la lista blanca
+        if (allowedOrigins.includes(cleanOrigin)) {
+            callback(null, true);
+        } else {
+            console.error(`🛑 Bloqueo CORS: ${origin} no está autorizado.`);
+            console.error(`Configurado en FRONTEND_URL: ${process.env.FRONTEND_URL}`);
+            callback(new Error('No autorizado por CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));

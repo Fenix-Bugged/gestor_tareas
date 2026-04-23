@@ -19,11 +19,12 @@ if (!process.env.JWT_SECRET) {
 
 const hasDbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
 if (!hasDbUrl) {
-    const requiredDbVars = ['DB_HOST', 'DB_USER', 'DB_NAME'];
-    const missingDbVars = requiredDbVars.filter(envVar => !process.env[envVar]);
+    const hasHost = process.env.DB_HOST || process.env.MYSQLHOST || process.env.MYSQL_HOST;
+    const hasUser = process.env.DB_USER || process.env.MYSQLUSER || process.env.MYSQL_USER;
+    const hasName = process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE;
     
-    if (missingDbVars.length > 0) {
-        console.error(`❌ ERROR CRÍTICO: Faltan variables de base de datos: ${missingDbVars.join(', ')}`);
+    if (!hasHost || !hasUser || !hasName) {
+        console.error(`❌ ERROR CRÍTICO: Faltan variables de base de datos (Host, User o Name).`);
         console.error('Configura las variables individuales o provee MYSQL_URL / DATABASE_URL.');
         process.exit(1);
     }

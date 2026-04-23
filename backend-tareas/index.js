@@ -6,9 +6,16 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const JWT_SECRET = 'secreto_super_seguro_gestor_tareas_123';
+
+// Asegurarse de que el directorio uploads exista
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Configuración de Multer para subida de imágenes
 const storage = multer.diskStorage({

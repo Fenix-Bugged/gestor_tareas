@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
+import { getApiUrl } from '../config';
 
 export interface UsuarioModel {
   id: number;
@@ -13,7 +14,7 @@ export interface UsuarioModel {
 })
 export class UsuariosService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:3000/usuarios';
+  private readonly API = `${getApiUrl()}/usuarios`;
 
   usuarios = signal<UsuarioModel[]>([]);
   cargando = signal<boolean>(false);

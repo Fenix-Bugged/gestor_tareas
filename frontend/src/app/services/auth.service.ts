@@ -1,6 +1,7 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
+import { getApiUrl } from '../config';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,7 @@ export class AuthService {
   }
 
   login(username: string, password: string) {
-    return this.http.post<{ token: string, username: string }>('http://localhost:3000/login', { username, password })
+    return this.http.post<{ token: string, username: string }>(`${getApiUrl()}/login`, { username, password })
       .pipe(
         tap(res => {
           this.token.set(res.token);

@@ -1,13 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TareaModel } from '../tarea/tarea.model';
+import { getApiUrl } from '../config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TareasService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:3000/tareas';
+  private readonly API = `${getApiUrl()}/tareas`;
 
   tareas = signal<TareaModel[]>([]);
   cargando = signal<boolean>(false);

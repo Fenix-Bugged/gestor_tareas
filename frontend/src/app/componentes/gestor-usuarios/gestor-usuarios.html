@@ -67,7 +67,7 @@
                 <!-- Modo Lectura -->
                 <div class="usuario-info">
                   <img class="usuario-avatar" 
-                       [src]="(usuario.avatar && usuario.avatar.startsWith('avatar-')) ? 'http://localhost:3000/uploads/' + usuario.avatar : 'img/' + (usuario.avatar || 'default-avatar.png')" 
+                       [src]="(usuario.avatar && usuario.avatar.startsWith('avatar-')) ? getApiUrl() + '/uploads/' + usuario.avatar : 'img/' + (usuario.avatar || 'default-avatar.png')" 
                        [alt]="usuario.nombre" />
                   <span>{{ usuario.nombre }}</span>
                 </div>

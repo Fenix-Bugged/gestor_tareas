@@ -65,8 +65,21 @@ const upload = multer({
     }
 });
 
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:4200'
+].filter(Boolean);
+
 app.use(cors({
-    origin: '*',
+    origin: (origin, callback) => {
+        // En producción, comparamos con FRONTEND_URL. 
+        // Permitimos peticiones sin origin (como Postman) o si coincide con la lista.
+        if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS: Origen no permitido'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));

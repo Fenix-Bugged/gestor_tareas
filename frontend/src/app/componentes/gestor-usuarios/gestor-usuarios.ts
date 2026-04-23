@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService, UsuarioModel } from '../../services/usuarios.service';
-import { getApiUrl } from '../../config';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-gestor-usuarios',
@@ -25,8 +25,8 @@ export class GestorUsuarios implements OnInit {
   editandoAvatarFile: File | null = null;
   editandoAvatarPreview: string | null = null;
 
-  getApiUrl() {
-    return getApiUrl();
+  get apiUrl() {
+    return environment.apiUrl;
   }
 
   ngOnInit() {
@@ -66,7 +66,7 @@ export class GestorUsuarios implements OnInit {
     this.editandoId.set(usuario.id);
     this.editandoNombre = usuario.nombre;
     this.editandoAvatarFile = null;
-    this.editandoAvatarPreview = usuario.avatar ? `${getApiUrl()}/uploads/${usuario.avatar}` : 'img/default-avatar.png';
+    this.editandoAvatarPreview = usuario.avatar ? `${this.apiUrl}/uploads/${usuario.avatar}` : 'img/default-avatar.png';
   }
 
   cancelarEdicion() {
@@ -81,7 +81,7 @@ export class GestorUsuarios implements OnInit {
 
     this.usuariosService.editar(id, {
       nombre: this.editandoNombre,
-      avatar: this.editandoAvatarFile || this.editandoAvatarPreview?.replace(`${getApiUrl()}/uploads/`, '') || 'default-avatar.png'
+      avatar: this.editandoAvatarFile || this.editandoAvatarPreview?.replace(`${this.apiUrl}/uploads/`, '') || 'default-avatar.png'
     });
     this.successMsg.set('Usuario actualizado');
     this.errorMsg.set('');

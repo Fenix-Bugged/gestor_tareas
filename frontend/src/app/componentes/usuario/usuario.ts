@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Tarjeta } from '../tarjeta/tarjeta';
-import { getApiUrl } from '../../config';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-usuario',
@@ -23,7 +23,7 @@ export class Usuario {
 
   get rutaAvatar() {
     if (this.usuario.avatar && this.usuario.avatar.startsWith('avatar-')) {
-      return `${getApiUrl()}/uploads/${this.usuario.avatar}`;
+      return `${environment.apiUrl}/uploads/${this.usuario.avatar}`;
     }
     return 'img/' + (this.usuario.avatar || 'default-avatar.png');
   }

@@ -1,14 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TareaModel } from '../tarea/tarea.model';
-import { getApiUrl } from '../config';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TareasService {
   private http = inject(HttpClient);
-  private readonly API = `${getApiUrl()}/tareas`;
+  private readonly API = `${environment.apiUrl}/tareas`;
 
   tareas = signal<TareaModel[]>([]);
   cargando = signal<boolean>(false);

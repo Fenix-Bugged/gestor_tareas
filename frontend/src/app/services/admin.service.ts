@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 
-import { getApiUrl } from '../config';
+import { environment } from '../../environments/environment';
 
 export interface AdminModel {
   id: number;
@@ -14,7 +14,7 @@ export interface AdminModel {
 })
 export class AdminService {
   private http = inject(HttpClient);
-  private readonly API = `${getApiUrl()}/administradores`;
+  private readonly API = `${environment.apiUrl}/administradores`;
 
   admins = signal<AdminModel[]>([]);
   cargando = signal(false);
